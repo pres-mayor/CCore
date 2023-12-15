@@ -19,5 +19,18 @@ namespace FidsCodingAssignment.Data.FlightInformation
             return flightList?.Where(x => x.flightnumber == flightNumber);
         }
 
+        public IEnumerable<FligtInformationDTO>? GetDelayedFlightsByDelta(int delta)
+        {
+            IEnumerable<FligtInformationDTO>? flightList = JsonConvert.DeserializeObject<IEnumerable<FligtInformationDTO>>(jsonContent);
+            var t = flightList?.Where(x => x.actual_time.HasValue);
+            return t.Where(x => (int)(x.actual_time - x.sched_time).Value.TotalMinutes >= delta);
+        }
+
+        public IEnumerable<FligtInformationDTO>? GetDelayedFlightsByGate(string gate)
+        {
+            IEnumerable<FligtInformationDTO>? flightList = JsonConvert.DeserializeObject<IEnumerable<FligtInformationDTO>>(jsonContent);
+            return flightList?.Where(x => x.gatecode == gate);
+        }
+
     }
 }

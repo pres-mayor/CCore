@@ -6,5 +6,7 @@ namespace FidsCodingAssignment.Data.FlightInformation
     {
         IEnumerable<FligtInformationDTO>? GetFlights();
         IEnumerable<FligtInformationDTO>? GetFlightByFlightNumber(int flightNumber);
+        IEnumerable<FligtInformationDTO>? GetDelayedFlightsByDelta(int delta);
+        IEnumerable<FligtInformationDTO>? GetDelayedFlightsByGate(string gate);
     }
 }
