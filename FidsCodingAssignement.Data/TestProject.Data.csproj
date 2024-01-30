@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FidsCodingAssignment.DTO\FidsCodingAssignment.DTO.csproj" />
+    <ProjectReference Include="..\FidsCodingAssignment.DTO\TestProject.DTO.csproj" />
   </ItemGroup>
 
 </Project>
