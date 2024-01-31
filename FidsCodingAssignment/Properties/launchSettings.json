@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "FidsCodingAssignment": {
+    "TestProject": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

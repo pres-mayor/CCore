@@ -5,6 +5,7 @@ using TestProject.Data.BookInfo;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using TestProject.Model;
 
 namespace FidsCodingAssignment.Controllers
 {
@@ -25,9 +26,9 @@ namespace FidsCodingAssignment.Controllers
 
         [HttpGet]
         [Route("GetBooks")]
-        public IEnumerable<Book> Get([FromQuery] int page = 1, [FromQuery] int pagesize = 10)
+        public Result GetBooks([FromQuery] int page = 1, [FromQuery] int pagesize = 10)
         {
-            var books = _bookRepository.GetBooks();
+            var books = _bookRepository?.GetAllBooks();
             var query = books?.AsQueryable();
 
             var totalCount = query.Count();
@@ -45,15 +46,19 @@ namespace FidsCodingAssignment.Controllers
                 PublishDateUtc = x.PublishDateUtc
             });
 
-            return result;
+            return new Result { currentPage = page, pageSize = pagesize, totalPage = totalPages, results = result };
         }
 
         [HttpGet]
         [Route("GetBookById")]
-        public Book GetFlightByFlightNumber(int id)
+        public Book? GetBookById(int id)
         {
-            var book = _bookRepository.GetBookById(id);
-            Book result = new Book
+            var book = _bookRepository?.GetBookById(id);
+
+            if (book == null)
+                return null;
+
+            Book result = new()
             {
                 Id = book.Id,
                 Title = book.Title,
@@ -67,18 +72,17 @@ namespace FidsCodingAssignment.Controllers
 
         [HttpGet]
         [Route("GetBooksByTitle")]
-        public IEnumerable<Book> GetBooksByTitle([FromQuery] int page = 1, [FromQuery] int pagesize = 10, [FromQuery] string title = "")
+        public Result? GetBooksByTitle([FromQuery] int page = 1, [FromQuery] int pagesize = 10, [FromQuery] string title = "")
         {
-            var books = _bookRepository.GetBooksByTitle(title);
+            var books = _bookRepository?.GetBooksByTitle(title);
             var query = books?.AsQueryable();
-
-            var totalCount = query.Count();
+            var totalCount = query?.Count();
             var totalPages = (int)Math.Ceiling((double)totalCount / pagesize);
 
-            query = query.Skip((page - 1) * pagesize).Take(pagesize);
+            var bookList = query?.Skip((page - 1) * pagesize).Take(pagesize).ToList();
 
 
-            IEnumerable<Book> result = query.Select(x => new Book
+            IEnumerable<Book>? result = bookList?.Select(x => new Book
             {
                 Id = x.Id,
                 Title = x.Title,
@@ -87,19 +91,22 @@ namespace FidsCodingAssignment.Controllers
                 PublishDateUtc = x.PublishDateUtc
             });
 
-            return result;
+            return new Result { currentPage = page, pageSize = pagesize, totalPage = totalPages, results = result };
         }
 
         [HttpGet]
         [Route("GetBooksByDescription")]
-        public IEnumerable<Book> GetBooksByDescription([FromQuery] int page = 1, [FromQuery] int pagesize = 10, [FromQuery] string title = "")
+        public Result GetBooksByDescription([FromQuery] int page = 1, [FromQuery] int pagesize = 10, [FromQuery] string description = "")
         {
-            var books = _bookRepository.GetBooksByDescription(title);
-            IEnumerable<TestProject.DTO.Book.BookInfoDTO>? query = null;
+            var books = _bookRepository?.GetBooksByDescription(description);
+            var query = books?.AsQueryable();
+            var totalCount = query?.Count();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pagesize);
 
-            query = PaginateResults(page, pagesize, books);
+            var bookList = query?.Skip((page - 1) * pagesize).Take(pagesize).ToList();
 
-            IEnumerable<Book> result = query.Select(x => new Book
+
+            IEnumerable<Book>? result = bookList?.Select(x => new Book
             {
                 Id = x.Id,
                 Title = x.Title,
@@ -108,13 +115,7 @@ namespace FidsCodingAssignment.Controllers
                 PublishDateUtc = x.PublishDateUtc
             });
 
-            return result;
-        }
-
-        private static IQueryable<TestProject.DTO.Book.BookInfoDTO> PaginateResults(int page, int pagesize, IEnumerable<TestProject.DTO.Book.BookInfoDTO>? query)
-        {
-            query = query?.Skip((page - 1) * pagesize).Take(pagesize);
-            return query.AsQueryable();
+            return new Result { currentPage = page, pageSize = pagesize, totalPage = totalPages, results = result };
         }
 
     }
